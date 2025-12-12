@@ -1,4 +1,0 @@
-booking_id,type,gamepass_id,has_gamepass
-1,fast_track,456789,false
-2,rental_car,345678,true
-3,fast_track,456789,false
