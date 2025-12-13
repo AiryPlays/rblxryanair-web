@@ -13,7 +13,7 @@ const RYANAIR_JOBS = [
     category: 'Pilots',
     image: 'https://images.unsplash.com/photo-1542385151-efd9000d8def?q=80&w=800&auto=format&fit=crop',
     description: 'Take command of our fleet. We are looking for experienced leaders to ensure the safety and comfort of our passengers.',
-    formLink: 'https://docs.google.com/forms/d/e/1FAIpQLSd7M_k8a9-4bC_z5y3-21x4-1234567890/viewform?embedded=true'
+    formLink: 'https://forms.gle/XLAw3GndNH1g7ACQ9'
   },
   {
     id: 'first_officer',
@@ -56,3 +56,4 @@ const RYANAIR_JOBS = [
     formLink: 'https://docs.google.com/forms/d/e/1FAIpQLSd7M_k8a9-4bC_z5y3-21x4-1234567890/viewform?embedded=true'
   }
 ];
+
