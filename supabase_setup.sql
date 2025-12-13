@@ -110,3 +110,4 @@ create policy "Public staff read" on staff for select using (true);
 create policy "Public staff write" on staff for insert with check (true);
 create policy "Public staff update" on staff for update using (true);
 create policy "Public staff delete" on staff for delete using (true);
+
