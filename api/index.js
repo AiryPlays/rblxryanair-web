@@ -387,7 +387,7 @@ async function handle(req) {
       return new Response(JSON.stringify({ ok: true, staff: newStaff }), { status: 201, headers: { 'Content-Type': 'application/json' } });
     }
     if (req.method === 'PUT') {
-      const id = url.searchParams.get('id');
+      const id = url.searchPaams.get('id');
       if (!id) return new Response('', { status: 400 });
       const p = await req.json();
       await db.update('staff', id, p);
@@ -412,3 +412,4 @@ export const config = {
 export default async function handler(req) {
   return handle(req);
 }
+
