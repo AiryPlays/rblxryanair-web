@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login • Ryanair</title>
+    <link rel="icon" href="https://flights.robloxryanair.com/harpyellow.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+    <style>
+      body { font-family: 'Roboto', sans-serif; }
+      .ryanair-blue { background-color: #073590; color: white; }
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-900 min-h-screen flex flex-col">
+    <header class="ryanair-blue shadow-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3">
+          <img src="https://flights.robloxryanair.com/harpyellow.png" alt="logo" class="h-9 w-9" />
+          <span class="text-2xl font-bold tracking-tight">RYANAIR</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center p-4">
+      <div class="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
+        <div class="flex border-b">
+          <button id="tab-login" class="flex-1 py-4 text-center font-bold text-[#073590] border-b-2 border-[#073590]">Login</button>
+          <button id="tab-register" class="flex-1 py-4 text-center font-medium text-gray-500 hover:text-gray-700">Register</button>
+        </div>
+        
+        <div class="p-8">
+          <h2 id="form-title" class="text-2xl font-bold mb-6 text-gray-800">Welcome back</h2>
+          
+          <form id="auth-form" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+              <input type="text" id="username" class="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter your username" required />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <input type="password" id="password" class="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••" required />
+            </div>
+
+            <div id="error-msg" class="text-red-600 text-sm hidden"></div>
+
+            <button type="submit" class="w-full bg-[#073590] text-white font-bold py-3 rounded-md hover:bg-blue-800 transition-colors uppercase tracking-wide">
+              Sign In
+            </button>
+          </form>
+          
+          <div class="mt-6 text-center text-sm text-gray-500">
+            By continuing, you agree to our <a href="/terms.html" class="text-blue-600 hover:underline">Terms of Use</a> and <a href="/privacy.html" class="text-blue-600 hover:underline">Privacy Policy</a>.
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-gray-900 text-white border-t border-gray-800 mt-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-3">
+          <img src="https://flights.robloxryanair.com/harpyellow.png" alt="logo" class="h-6 w-6" />
+          <span class="text-gray-400 text-sm">© 2025 Ryanair Roblox</span>
+        </div>
+        <div class="flex gap-6">
+          <a href="/privacy.html" class="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
+          <a href="/terms.html" class="text-gray-400 hover:text-white transition-colors text-sm">Terms of Use</a>
+        </div>
+      </div>
+    </footer>
+    <script src="/assets/cookies.js"></script>
+
+    <script>
+      const tabLogin = document.getElementById('tab-login');
+      const tabRegister = document.getElementById('tab-register');
+      const formTitle = document.getElementById('form-title');
+      const form = document.getElementById('auth-form');
+      const btn = form.querySelector('button');
+      const errorMsg = document.getElementById('error-msg');
+      
+      let isLogin = true;
+
+      function switchTab(login) {
+        isLogin = login;
+        if (isLogin) {
+          tabLogin.className = 'flex-1 py-4 text-center font-bold text-[#073590] border-b-2 border-[#073590]';
+          tabRegister.className = 'flex-1 py-4 text-center font-medium text-gray-500 hover:text-gray-700';
+          formTitle.textContent = 'Welcome back';
+          btn.textContent = 'Sign In';
+        } else {
+          tabRegister.className = 'flex-1 py-4 text-center font-bold text-[#073590] border-b-2 border-[#073590]';
+          tabLogin.className = 'flex-1 py-4 text-center font-medium text-gray-500 hover:text-gray-700';
+          formTitle.textContent = 'Create an account';
+          btn.textContent = 'Register';
+        }
+        errorMsg.classList.add('hidden');
+      }
+
+      tabLogin.onclick = () => switchTab(true);
+      tabRegister.onclick = () => switchTab(false);
+
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        
+        if (!username || !password) return;
+
+        btn.disabled = true;
+        btn.classList.add('opacity-75');
+        errorMsg.classList.add('hidden');
+
+        try {
+          const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          
+          const data = await res.json();
+          
+          if (!res.ok) {
+            throw new Error(data.error || 'Something went wrong');
+          }
+
+          if (isLogin) {
+            sessionStorage.setItem('user_id', data.id);
+            sessionStorage.setItem('role', data.role);
+            if (data.role === 'admin') {
+              sessionStorage.setItem('admin_ok', '1'); // For compatibility with old admin check
+            }
+            window.location.href = '/';
+          } else {
+            // Auto login after register? Or ask to login?
+            // Let's ask to login for simplicity or just auto login
+            // For now, switch to login tab
+            alert('Registration successful! Please sign in.');
+            switchTab(true);
+          }
+
+        } catch (err) {
+          errorMsg.textContent = err.message;
+          errorMsg.classList.remove('hidden');
+        } finally {
+          btn.disabled = false;
+          btn.classList.remove('opacity-75');
+        }
+      };
+    </script>
+  </body>
+</html>
