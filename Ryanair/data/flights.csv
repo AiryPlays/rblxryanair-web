@@ -1,0 +1,12 @@
+day,flightNumber,time,departure,arrival,departureTime,arrivalTime,duration,operator
+Monday,FR2489,17:35 BST,London Stansted,Asturias,17:35,18:45,1hr 10min,ryanairdac
+Monday,FR3871,20:35 BST,Malta,Venice Treviso,20:35,21:45,1hr 10min,ryanairdac
+Tuesday,FR7933,16:35 BST,Kraków,Podgorica,16:35,17:45,1hr 10min,buzz
+Tuesday,FR8681,19:35 BST,Bristol,Kaunas,19:35,20:45,1hr 10min,ryanairdac
+Wednesday,FR2325,17:35 BST,Leeds Bradford,Barcelona Girona,17:35,18:45,1hr 10min,ryanairdac
+Wednesday,FR2489,20:35 BST,London Stansted,Asturias,20:35,21:45,1hr 10min,ryanairdac
+Thursday,FR3871,20:35 BST,Malta,Venice Treviso,20:35,21:45,1hr 10min,buzz
+Friday,FR2489,17:35 BST,London Stansted,Asturias,17:35,18:45,1hr 10min,ryanairdac
+Friday,FR8681,20:35 BST,Bristol,Kaunas,20:35,21:45,1hr 10min,malta
+Saturday,FR7933,15:35 BST,Kraków,Podgorica,15:35,16:45,1hr 10min,malta
+Sunday,FR2325,23:35 BST,Leeds Bradford,Barcelona Girona,23:35,00:45,1hr 10min,ryanairdac
