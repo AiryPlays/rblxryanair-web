@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shift Logging • Ryanair Staff</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}</style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-[#073590] text-white shadow-md">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="https://flights.robloxryanair.com/harpyellow.png" alt="logo" class="h-8 w-8" />
+                <span class="font-bold text-lg">Staff Portal</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="user-display" class="text-sm font-medium"></span>
+                <a href="/" class="text-blue-200 hover:text-white text-sm">Home</a>
+                <button id="logout-btn" class="text-blue-200 hover:text-white text-sm font-medium">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Shift Logging</h2>
+            <p class="text-gray-600 mb-6">Log your duty hours accurately.</p>
+
+            <div id="active-shift-panel" class="hidden bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+                <h3 class="text-lg font-semibold text-green-800 mb-2">You are currently ON DUTY</h3>
+                <div class="text-3xl font-mono mb-4" id="timer">00:00:00</div>
+                <p class="text-sm text-green-700 mb-4">Started at: <span id="start-time-display" class="font-medium"></span></p>
+                <button onclick="endShift()" class="bg-red-600 text-white px-6 py-3 rounded-full font-bold hover:bg-red-700 transition shadow-lg">END SHIFT</button>
+            </div>
+
+            <div id="inactive-shift-panel" class="hidden bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">You are currently OFF DUTY</h3>
+                <button onclick="startShift()" class="bg-green-600 text-white px-6 py-3 rounded-full font-bold hover:bg-green-700 transition shadow-lg">START SHIFT</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">Your Recent Shifts</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm text-left">
+                    <thead class="bg-gray-50 text-gray-500 uppercase font-medium">
+                        <tr>
+                            <th class="px-6 py-3">Date</th>
+                            <th class="px-6 py-3">Start Time</th>
+                            <th class="px-6 py-3">End Time</th>
+                            <th class="px-6 py-3">Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody id="my-shifts-rows" class="divide-y divide-gray-200"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const userId = sessionStorage.getItem('user_id');
+        const role = sessionStorage.getItem('role');
+        const username = sessionStorage.getItem('username') || 'Staff Member'; // Need to store username on login ideally
+
+        if (!userId || (role !== 'staff' && role !== 'admin')) {
+            window.location.href = '/login.html';
+        }
+
+        document.getElementById('user-display').textContent = username;
+        document.getElementById('logout-btn').onclick = () => {
+            sessionStorage.clear();
+            window.location.href = '/login.html';
+        };
+
+        let currentShiftId = null;
+        let shiftStartTime = null;
+        let timerInterval = null;
+
+        async function checkActiveShift() {
+            // Fetch shifts and see if the top one is active
+            const res = await fetch(`/api/shifts?userId=${userId}`);
+            const shifts = await res.json();
+            
+            // Render table
+            const rows = document.getElementById('my-shifts-rows');
+            rows.innerHTML = shifts.map(s => {
+                const start = new Date(s.start_time);
+                const end = s.end_time ? new Date(s.end_time) : null;
+                const duration = end ? ((end - start) / 1000 / 60 / 60).toFixed(2) + ' hrs' : 'Active';
+                return `
+                    <tr>
+                        <td class="px-6 py-3 text-gray-900">${start.toLocaleDateString()}</td>
+                        <td class="px-6 py-3 text-gray-600">${start.toLocaleTimeString()}</td>
+                        <td class="px-6 py-3 text-gray-600">${end ? end.toLocaleTimeString() : '-'}</td>
+                        <td class="px-6 py-3 font-medium ${end ? 'text-gray-900' : 'text-green-600'}">${duration}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Check most recent shift
+            if (shifts.length > 0 && !shifts[0].end_time) {
+                // Active shift found
+                currentShiftId = shifts[0].id;
+                shiftStartTime = new Date(shifts[0].start_time);
+                showActivePanel();
+            } else {
+                showInactivePanel();
+            }
+        }
+
+        function showActivePanel() {
+            document.getElementById('active-shift-panel').classList.remove('hidden');
+            document.getElementById('inactive-shift-panel').classList.add('hidden');
+            document.getElementById('start-time-display').textContent = shiftStartTime.toLocaleString();
+            startTimer();
+        }
+
+        function showInactivePanel() {
+            document.getElementById('active-shift-panel').classList.add('hidden');
+            document.getElementById('inactive-shift-panel').classList.remove('hidden');
+            stopTimer();
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const diff = now - shiftStartTime;
+                const hours = Math.floor(diff / 3600000).toString().padStart(2, '0');
+                const minutes = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+                const seconds = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                document.getElementById('timer').textContent = `${hours}:${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        async function startShift() {
+            const res = await fetch('/api/shifts/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ userId, username })
+            });
+            const data = await res.json();
+            if (data.success) {
+                checkActiveShift();
+            } else {
+                alert('Error starting shift');
+            }
+        }
+
+        async function endShift() {
+            if (!currentShiftId) return;
+            const res = await fetch('/api/shifts/end', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ shiftId: currentShiftId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                currentShiftId = null;
+                checkActiveShift();
+            } else {
+                alert('Error ending shift');
+            }
+        }
+
+        checkActiveShift();
+    </script>
+</body>
+</html>

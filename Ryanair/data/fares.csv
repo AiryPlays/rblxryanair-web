@@ -1,0 +1,5 @@
+booking_id,type,gamepass_id,has_gamepass
+1,regular,0,false
+1,plus,234567,true
+2,family_plus,123456,false
+3,regular,0,false
