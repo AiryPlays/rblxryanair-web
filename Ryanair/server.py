@@ -11,7 +11,12 @@ from datetime import datetime
 DB_PATH = os.path.join(os.path.dirname(__file__), 'flights.db')
 
 def db_conn():
-    return sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute('PRAGMA foreign_keys = ON')
+    except Exception:
+        pass
+    return conn
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -25,6 +30,12 @@ def generate_chief_password():
 def init_db():
     conn = db_conn()
     cur = conn.cursor()
+    
+    def ensure_column(table, name, coltype):
+        cur.execute(f'PRAGMA table_info({table})')
+        cols = [r[1] for r in cur.fetchall()]
+        if name not in cols:
+            cur.execute(f'ALTER TABLE {table} ADD COLUMN {name} {coltype}')
     
     # 1. USERS
     cur.execute('''CREATE TABLE IF NOT EXISTS users (
@@ -109,15 +120,22 @@ def init_db():
     cur.execute('''CREATE TABLE IF NOT EXISTS bookings (
         id TEXT PRIMARY KEY,
         flight_id TEXT,
-        created_at TEXT
+        created_by TEXT,
+        created_at TEXT,
+        FOREIGN KEY(created_by) REFERENCES users(id)
     )''')
+    ensure_column('bookings', 'created_by', 'TEXT')
 
     # 4. PASSENGERS
     cur.execute('''CREATE TABLE IF NOT EXISTS passengers (
         id TEXT PRIMARY KEY,
         booking_id TEXT,
-        username TEXT
+        username TEXT,
+        user_id TEXT,
+        FOREIGN KEY(user_id) REFERENCES users(id),
+        FOREIGN KEY(booking_id) REFERENCES bookings(id)
     )''')
+    ensure_column('passengers', 'user_id', 'TEXT')
 
     # 5. SEATS
     cur.execute('''CREATE TABLE IF NOT EXISTS seats (
@@ -175,6 +193,14 @@ def init_db():
         end_time TEXT
     )''')
 
+    cur.execute('''CREATE TABLE IF NOT EXISTS sessions (
+        token TEXT PRIMARY KEY,
+        user_id TEXT,
+        created_at TEXT,
+        expires_at TEXT,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )''')
+
     conn.commit()
     conn.close()
 
@@ -186,11 +212,21 @@ class Handler(SimpleHTTPRequestHandler):
             body = json.dumps(data).encode('utf-8')
             self.send_response(code)
             self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type')
             self.send_header('Content-Length', str(len(body)))
             self.end_headers()
             self.wfile.write(body)
         except Exception as e:
             print(f"Error sending JSON: {e}")
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
 
     def do_GET(self):
         try:
@@ -313,10 +349,16 @@ class Handler(SimpleHTTPRequestHandler):
                 hashed = hash_password(password)
                 cur.execute('SELECT id, role, username FROM users WHERE username=? AND password_hash=?', (username, hashed))
                 row = cur.fetchone()
-                conn.close()
                 if row:
-                    self.send_json({'success': True, 'id': row[0], 'role': row[1], 'username': row[2]})
+                    token = str(uuid.uuid4())
+                    now = datetime.utcnow().isoformat()
+                    exp = datetime.utcnow().isoformat()
+                    cur.execute('INSERT INTO sessions (token, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)', (token, row[0], now, exp))
+                    conn.commit()
+                    conn.close()
+                    self.send_json({'success': True, 'id': row[0], 'role': row[1], 'username': row[2], 'token': token})
                 else:
+                    conn.close()
                     self.send_json({'error': 'Invalid credentials'}, 401)
                 return
 
@@ -349,12 +391,21 @@ class Handler(SimpleHTTPRequestHandler):
             if path == '/api/booking':
                 flight_id = payload.get('flightId')
                 passengers = payload.get('passengers', [])
+                created_by = payload.get('createdByUserId')
                 bid = str(uuid.uuid4())
                 conn = db_conn()
                 cur = conn.cursor()
-                cur.execute('INSERT INTO bookings (id, flight_id, created_at) VALUES (?, ?, ?)', (bid, flight_id, datetime.utcnow().isoformat()))
+                cur.execute('INSERT INTO bookings (id, flight_id, created_by, created_at) VALUES (?, ?, ?, ?)', (bid, flight_id, created_by, datetime.utcnow().isoformat()))
                 for p in passengers:
-                    cur.execute('INSERT INTO passengers (id, booking_id, username) VALUES (?, ?, ?)', (str(uuid.uuid4()), bid, p))
+                    uid = None
+                    try:
+                        cur.execute('SELECT id FROM users WHERE username=?', (p,))
+                        r = cur.fetchone()
+                        if r:
+                            uid = r[0]
+                    except Exception:
+                        uid = None
+                    cur.execute('INSERT INTO passengers (id, booking_id, username, user_id) VALUES (?, ?, ?, ?)', (str(uuid.uuid4()), bid, p, uid))
                 conn.commit()
                 conn.close()
                 self.send_json({'bookingId': bid})

@@ -121,7 +121,14 @@
             body: JSON.stringify({ username, password })
           });
           
-          const data = await res.json();
+          const text = await res.text();
+          let data;
+          try {
+             data = JSON.parse(text);
+          } catch(e) {
+             console.error('Invalid JSON:', text);
+             throw new Error('Server returned invalid JSON: ' + text.substring(0, 100));
+          }
           
           if (!res.ok) {
             throw new Error(data.error || 'Something went wrong');
@@ -131,6 +138,7 @@
             sessionStorage.setItem('user_id', data.id);
             sessionStorage.setItem('role', data.role);
             sessionStorage.setItem('username', data.username);
+            if (data.token) sessionStorage.setItem('token', data.token);
             if (data.role === 'admin') {
               sessionStorage.setItem('admin_ok', '1'); // For compatibility with old admin check
             }

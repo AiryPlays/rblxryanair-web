@@ -1,7 +1,7 @@
 
 // --- CONFIGURATION ---
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
 const USE_SUPABASE = !!(SUPABASE_URL && SUPABASE_KEY);
 
 // --- IN-MEMORY SEED DATA (Fallback) ---

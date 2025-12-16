@@ -273,7 +273,12 @@
 
       async function createBooking(flightNumber, day, passengers){
         const flight = allFlights.find(f=>f.flightNumber===flightNumber && f.day===day);
-        const res = await fetch('/api/booking', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ flightId: flight.id, passengers }) });
+        const createdByUserId = sessionStorage.getItem('user_id') || null;
+        const res = await fetch('/api/booking', { 
+          method:'POST', 
+          headers:{'Content-Type':'application/json'}, 
+          body: JSON.stringify({ flightId: flight.id, passengers, createdByUserId }) 
+        });
         const j = await res.json();
         return { bookingId: j.bookingId, flightId: flight.id };
       }
@@ -611,9 +616,9 @@
             dqs('#finish-btn').onclick = async () => {
               // Finalize: Save Fare and Extras to DB
               dqs('#finish-btn').textContent = 'Finalizing...';
-              await fetch('/api/fare', { method:'POST', body:JSON.stringify({ bookingId: ctx.bookingId, type: ctx.fare.type, gamepassId: ctx.fare.gamepassId, username: ctx.username }) });
+              await fetch('/api/fare', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ bookingId: ctx.bookingId, type: ctx.fare.type, gamepassId: ctx.fare.gamepassId, username: ctx.username }) });
               for(const x of ctx.extras){
-                 await fetch('/api/extras', { method:'POST', body:JSON.stringify({ bookingId: ctx.bookingId, type: x.key, gamepassId: x.gamepassId, username: ctx.username }) });
+                 await fetch('/api/extras', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ bookingId: ctx.bookingId, type: x.key, gamepassId: x.gamepassId, username: ctx.username }) });
               }
               alert('Check-in successful! Have a nice flight.');
               overlay.remove();
