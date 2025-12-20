@@ -9,50 +9,34 @@
 const RYANAIR_JOBS = [
   {
     id: 'RYR68276FD361',
-    title: 'Captain',
+    title: 'Flight Deck',
     category: 'Pilots',
-    image: 'https://images.unsplash.com/photo-1542385151-efd9000d8def?q=80&w=800&auto=format&fit=crop',
-    description: 'Take command of our fleet. We are looking for experienced leaders to ensure the safety and comfort of our passengers.',
-    formLink: 'https://docs.google.com/forms/d/e/1FAIpQLSd7M_k8a9-4bC_z5y3-21x4-1234567890/viewform?embedded=true'
+    image: 'https://pbs.twimg.com/media/G8n2bf6WUAAKIse?format=jpg&name=medium',
+    description: 'Have you ever wanted to take to the skies as a First Officer or as a Pilot and experience what life’s like working with Ryanair’s extensive and growing fleet? Apply today to join our growing team of pilots and discover what life’s like at Roblox’s best Ryanair!',
+    formLink: 'https://forms.gle/ygCHLg9pJ6QyszR29'
   },
   {
-    id: 'first_officer',
-    title: 'First Officer',
-    category: 'Pilots',
-    image: 'https://images.unsplash.com/photo-1559297434-fae8a1916a79?q=80&w=800&auto=format&fit=crop',
-    description: 'Support the Captain and gain valuable experience on the flight deck. A perfect start for aspiring commanders.',
-    formLink: 'https://docs.google.com/forms/d/e/1FAIpQLSd7M_k8a9-4bC_z5y3-21x4-1234567890/viewform?embedded=true'
+    id: 'RYR23719GO174',
+    title: 'Ground Crew',
+    category: 'Ground Operations',
+    image: 'https://pbs.twimg.com/media/G8n2q7vXQAEmNaf?format=png&name=900x900',
+    description: 'Have you ever wondered what happens behind the scenes to ensure flights arrive and depart smoothly? This is your chance to find out more!',
+    formLink: 'https://forms.gle/Cvs9YhLKznhyHWjL8'
   },
   {
-    id: 'cabin_crew',
+    id: 'RYR29481CC425',
     title: 'Cabin Crew',
-    category: 'Cabin Crew',
-    image: 'https://images.unsplash.com/photo-1520697830682-bbb6e85e2b0b?q=80&w=800&auto=format&fit=crop',
-    description: 'Be the face of Ryanair. Ensure passenger safety and deliver excellent customer service at 30,000 feet.',
-    formLink: 'https://docs.google.com/forms/d/e/1FAIpQLSd7M_k8a9-4bC_z5y3-21x4-1234567890/viewform?embedded=true'
+    category: 'Inflight',
+    image: 'https://pbs.twimg.com/media/G8n2cHdWkAAvbTB?format=jpg&name=large',
+    description: 'Have you ever wondered what happens behind the scenes to ensure flights are loved by passengers? This is your chance to find out more!',
+    formLink: 'https://forms.gle/Uk5NYEUDNmTRLkAW8'
   },
   {
-    id: 'airport_staff',
-    title: 'Airport Staff',
-    category: 'Ground Ops',
-    image: 'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?q=80&w=800&auto=format&fit=crop',
-    description: 'Manage ground operations, check-in, and boarding. Keep everything running smoothly on the ground.',
-    formLink: 'https://docs.google.com/forms/d/e/1FAIpQLSd7M_k8a9-4bC_z5y3-21x4-1234567890/viewform?embedded=true'
-  },
-  {
-    id: 'engineer',
-    title: 'Aircraft Engineer',
-    category: 'Engineering',
-    image: 'https://images.unsplash.com/photo-1581092921461-eab62e97a782?q=80&w=800&auto=format&fit=crop',
-    description: 'Maintain our fleet to the highest standards. Safety is our number one priority.',
-    formLink: 'https://docs.google.com/forms/d/e/1FAIpQLSd7M_k8a9-4bC_z5y3-21x4-1234567890/viewform?embedded=true'
-  },
-  {
-    id: 'developer',
-    title: 'Roblox Developer',
-    category: 'Digital & Tech',
-    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop',
-    description: 'Help build the future of our airline on Roblox. Scripters, builders, and UI designers wanted.',
-    formLink: 'https://docs.google.com/forms/d/e/1FAIpQLSd7M_k8a9-4bC_z5y3-21x4-1234567890/viewform?embedded=true'
+    id: 'RYR38591SS231',
+    title: 'Police Officer',
+    category: 'Safety & Security',
+    image: 'https://pbs.twimg.com/media/G8n3QjrXUAAa3GR?format=jpg&name=large',
+    description: 'Do you think you have what it takes to operate on the face of our airline, patrol the terminal at our daily flights, be responsible for catching threats and dealing with disruptive passengers, or perhaps man the scanners at security? Then this is the perfect career for you!',
+    formLink: 'https://forms.gle/bS2nwq2v9QNWsMyo7'
   }
 ];
